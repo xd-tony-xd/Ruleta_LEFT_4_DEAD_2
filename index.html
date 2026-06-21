@@ -14,20 +14,38 @@ body { background: radial-gradient(circle at top,#1e293b,#020617); }
   from { opacity:0; transform:translateY(10px); }
   to { opacity:1; transform:translateY(0); }
 }
+.mode-btn { transition: all .15s ease; }
+.mode-btn.active {
+  background: #16a34a;
+  box-shadow: 0 0 0 2px rgba(255,255,255,.4) inset;
+}
+.team-card { animation: fadeIn .4s ease; }
+.tab-btn.active {
+  background: rgba(255,255,255,.12);
+  border-color: rgba(255,255,255,.3);
+}
 </style>
 </head>
 <body class="min-h-screen text-white p-5">
 <div class="max-w-7xl mx-auto">
   <div class="text-center mb-8">
     <h1 class="text-5xl font-black mb-2">🎡 LEFT 4 DEAD 2</h1>
-    <p class="text-slate-400">Ruleta automática de equipos</p>
+    <p class="text-slate-400">Ruleta automática de equipos y mapas</p>
   </div>
-  <div class="grid lg:grid-cols-3 gap-6">
+
+  <!-- TABS -->
+  <div class="flex justify-center gap-3 mb-6">
+    <button id="tabTeams" class="tab-btn active glass bg-white/5 border border-white/10 px-6 py-3 rounded-2xl font-bold transition">👥 Ruleta de Equipos</button>
+    <button id="tabMaps" class="tab-btn glass bg-white/5 border border-white/10 px-6 py-3 rounded-2xl font-bold transition">🗺️ Ruleta de Mapas</button>
+  </div>
+
+  <!-- ===================== VISTA EQUIPOS ===================== -->
+  <div id="viewTeams" class="grid lg:grid-cols-3 gap-6">
 
     <!-- JUGADORES -->
     <div class="glass bg-white/5 border border-white/10 rounded-3xl p-5">
       <h2 class="text-2xl font-bold mb-4">👥 Jugadores</h2>
-      <textarea id="playersInput" class="w-full h-96 bg-slate-900 rounded-xl p-4 outline-none border border-slate-700 text-white">Mati
+      <textarea id="playersInput" class="w-full h-72 bg-slate-900 rounded-xl p-4 outline-none border border-slate-700 text-white">Mati
 Nyxzen
 solo k
 Triple X
@@ -35,12 +53,32 @@ kamar
 stumaker
 Takito
 xd-tony-xd</textarea>
-      <div class="mt-4 flex justify-between items-center">
+      <div class="mt-4 flex justify-between items-center flex-wrap gap-2">
         <div>Jugadores: <span id="countPlayers" class="font-bold">8</span></div>
         <div class="flex gap-2">
           <button id="clearBtn" class="bg-slate-600 hover:bg-slate-700 px-4 py-2 rounded-xl transition text-sm">🗑️ Limpiar todo</button>
           <button id="resetBtn" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-xl transition text-sm">🔄 Reiniciar</button>
         </div>
+      </div>
+
+      <!-- MODO DE EQUIPOS -->
+      <div class="mt-5 pt-5 border-t border-white/10">
+        <h3 class="font-bold mb-3 text-slate-300 text-sm uppercase tracking-wide">⚙️ Modo de equipos</h3>
+        <div class="grid grid-cols-2 gap-2">
+          <button data-mode="classic" class="mode-btn active bg-white/10 hover:bg-white/20 px-3 py-2 rounded-xl text-sm font-semibold">🧟 Infectados vs 🔫 Supervivientes</button>
+          <button data-mode="2v2" class="mode-btn bg-white/10 hover:bg-white/20 px-3 py-2 rounded-xl text-sm font-semibold">2 vs 2</button>
+          <button data-mode="3v3" class="mode-btn bg-white/10 hover:bg-white/20 px-3 py-2 rounded-xl text-sm font-semibold">3 vs 3</button>
+          <button data-mode="4v4" class="mode-btn bg-white/10 hover:bg-white/20 px-3 py-2 rounded-xl text-sm font-semibold">4 vs 4</button>
+          <button data-mode="auto" class="mode-btn bg-white/10 hover:bg-white/20 px-3 py-2 rounded-xl text-sm font-semibold col-span-2">🧩 Equipos automáticos (varios)</button>
+        </div>
+        <div id="autoTeamSizeWrap" class="mt-3 hidden">
+          <label class="text-sm text-slate-400 block mb-1">Jugadores por equipo</label>
+          <div class="flex items-center gap-3">
+            <input id="autoTeamSize" type="range" min="2" max="6" value="4" class="flex-1">
+            <span id="autoTeamSizeLabel" class="font-bold w-16 text-center bg-white/10 rounded-lg py-1">4 / equipo</span>
+          </div>
+        </div>
+        <p id="modeHint" class="text-xs text-slate-400 mt-3"></p>
       </div>
     </div>
 
@@ -62,35 +100,137 @@ xd-tony-xd</textarea>
 
     <!-- EQUIPOS -->
     <div class="space-y-5">
-      <div class="glass bg-red-500/10 border border-red-500/20 rounded-3xl p-5">
-        <h2 class="text-red-400 text-2xl font-bold mb-4">🧟 Infectados</h2>
-        <ul id="infectedList" class="space-y-2"></ul>
-      </div>
-      <div class="glass bg-green-500/10 border border-green-500/20 rounded-3xl p-5">
-        <h2 class="text-green-400 text-2xl font-bold mb-4">🔫 Supervivientes</h2>
-        <ul id="survivorList" class="space-y-2"></ul>
+      <div id="teamsContainer" class="space-y-5">
+        <!-- Se genera dinámicamente según el modo -->
       </div>
       <button id="copyBtn" class="w-full bg-blue-600 hover:bg-blue-700 px-4 py-3 rounded-2xl font-bold transition text-lg">📋 Copiar equipos</button>
       <div id="copyMsg" class="text-center text-green-400 font-bold text-sm hidden">✅ ¡Copiado al portapapeles!</div>
     </div>
 
   </div>
+
+  <!-- ===================== VISTA MAPAS ===================== -->
+  <div id="viewMaps" class="hidden grid lg:grid-cols-2 gap-6">
+
+    <!-- RULETA DE MAPAS -->
+    <div class="glass bg-white/5 border border-white/10 rounded-3xl p-5">
+      <h2 class="text-2xl font-bold mb-4 text-center">🗺️ Ruleta de Mapas</h2>
+      <div class="flex justify-center">
+        <div class="relative">
+          <div class="absolute left-1/2 -translate-x-1/2 -top-4 z-10">
+            <div class="w-0 h-0 border-l-[20px] border-r-[20px] border-t-[35px] border-l-transparent border-r-transparent border-t-white"></div>
+          </div>
+          <canvas id="mapWheel" width="550" height="550" class="rounded-full border-4 border-white shadow-2xl max-w-full"></canvas>
+        </div>
+      </div>
+      <div class="text-center">
+        <button id="spinMapBtn" class="mt-5 bg-purple-600 hover:bg-purple-700 px-8 py-3 rounded-2xl text-xl font-bold transition">🎲 GIRAR MAPA</button>
+      </div>
+      <div id="mapWinner" class="text-center mt-5 text-2xl font-black min-h-[60px]"></div>
+    </div>
+
+    <!-- LISTA DE MAPAS -->
+    <div class="glass bg-white/5 border border-white/10 rounded-3xl p-5">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-bold">📜 Campañas disponibles</h2>
+        <span class="text-sm text-slate-400"><span id="mapCount">0</span> activos</span>
+      </div>
+      <div class="flex gap-2 mb-3">
+        <button id="mapsAllBtn" class="text-xs bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg">Seleccionar todos</button>
+        <button id="mapsNoneBtn" class="text-xs bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg">Quitar todos</button>
+        <button id="mapsOfficialBtn" class="text-xs bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg">Solo oficiales</button>
+      </div>
+      <div id="mapsList" class="h-[480px] overflow-y-auto space-y-2 pr-1"></div>
+    </div>
+
+  </div>
+
 </div>
 
 <script>
+/* ============================================================
+   DATOS: Campañas oficiales de Left 4 Dead 2
+   ============================================================ */
+const MAPS = [
+  { name: "Dead Center", official: true },
+  { name: "Dark Carnival", official: true },
+  { name: "Swamp Fever", official: true },
+  { name: "Hard Rain", official: true },
+  { name: "The Parish", official: true },
+  { name: "The Passing", official: true },
+  { name: "Crash Course", official: true },
+  { name: "Death Toll", official: true },
+  { name: "Dead Air", official: true },
+  { name: "Blood Harvest", official: true },
+  { name: "The Sacrifice", official: true },
+  { name: "No Mercy", official: true },
+  { name: "Cold Stream", official: true },
+];
+
+/* ============================================================
+   TABS
+   ============================================================ */
+const tabTeams = document.getElementById("tabTeams");
+const tabMaps = document.getElementById("tabMaps");
+const viewTeams = document.getElementById("viewTeams");
+const viewMaps = document.getElementById("viewMaps");
+
+tabTeams.onclick = () => {
+  tabTeams.classList.add("active");
+  tabMaps.classList.remove("active");
+  viewTeams.classList.remove("hidden");
+  viewMaps.classList.add("hidden");
+};
+tabMaps.onclick = () => {
+  tabMaps.classList.add("active");
+  tabTeams.classList.remove("active");
+  viewMaps.classList.remove("hidden");
+  viewTeams.classList.add("hidden");
+  drawMapWheel();
+};
+
+/* ============================================================
+   RULETA DE JUGADORES / EQUIPOS
+   ============================================================ */
 const canvas = document.getElementById("wheel");
 const ctx = canvas.getContext("2d");
 const input = document.getElementById("playersInput");
-const infectedList = document.getElementById("infectedList");
-const survivorList = document.getElementById("survivorList");
+const teamsContainer = document.getElementById("teamsContainer");
 const winner = document.getElementById("winner");
+const modeHint = document.getElementById("modeHint");
+const autoTeamSizeWrap = document.getElementById("autoTeamSizeWrap");
+const autoTeamSizeInput = document.getElementById("autoTeamSize");
+const autoTeamSizeLabel = document.getElementById("autoTeamSizeLabel");
 
 let players = [];
 let currentAngle = 0;
 let spinning = false;
 let turn = 0;
-const infectedNames = [];
-const survivorNames = [];
+let currentMode = "classic"; // classic | 2v2 | 3v3 | 4v4 | auto
+let autoTeamSize = 4;
+
+// Estructura de equipos generada dinámicamente según el modo
+// teams = [{ id, label, emoji, colorClass, members: [] }]
+let teams = [];
+
+const MODE_HINTS = {
+  classic: "Cada jugador que sale en la ruleta se reparte alternadamente entre Infectados y Supervivientes.",
+  "2v2": "Se crean equipos de 2 jugadores cada uno. Si sobran jugadores, se reparten en un equipo extra.",
+  "3v3": "Se crean equipos de 3 jugadores cada uno. Si sobran jugadores, se reparten en un equipo extra.",
+  "4v4": "Se crean equipos de 4 jugadores cada uno. Si sobran jugadores, se reparten en un equipo extra.",
+  auto: "Se generan automáticamente todos los equipos necesarios según el tamaño elegido. Ej: 16 jugadores / 4 por equipo = 4 equipos.",
+};
+
+const TEAM_COLORS = [
+  { bg: "bg-red-500/10", border: "border-red-500/20", text: "text-red-400" },
+  { bg: "bg-green-500/10", border: "border-green-500/20", text: "text-green-400" },
+  { bg: "bg-blue-500/10", border: "border-blue-500/20", text: "text-blue-400" },
+  { bg: "bg-yellow-500/10", border: "border-yellow-500/20", text: "text-yellow-400" },
+  { bg: "bg-purple-500/10", border: "border-purple-500/20", text: "text-purple-400" },
+  { bg: "bg-pink-500/10", border: "border-pink-500/20", text: "text-pink-400" },
+  { bg: "bg-cyan-500/10", border: "border-cyan-500/20", text: "text-cyan-400" },
+  { bg: "bg-orange-500/10", border: "border-orange-500/20", text: "text-orange-400" },
+];
 
 function updatePlayers() {
   players = input.value.split("\n").map(x => x.trim()).filter(x => x);
@@ -105,131 +245,87 @@ function getFontSize(numPlayers, radius) {
   return Math.floor(radius * 0.065);
 }
 
-function drawWheel() {
-  const size = canvas.width;
+function drawGenericWheel(targetCtx, targetCanvas, items, getLabel) {
+  const size = targetCanvas.width;
   const center = size / 2;
   const radius = center - 2;
 
-  ctx.clearRect(0, 0, size, size);
+  targetCtx.clearRect(0, 0, size, size);
 
-  if (players.length === 0) {
-    ctx.fillStyle = "white";
-    ctx.font = "bold 32px Arial";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText("Sin jugadores", center, center);
+  if (items.length === 0) {
+    targetCtx.fillStyle = "white";
+    targetCtx.font = "bold 32px Arial";
+    targetCtx.textAlign = "center";
+    targetCtx.textBaseline = "middle";
+    targetCtx.fillText("Sin elementos", center, center);
     return;
   }
 
-  const slice = (Math.PI * 2) / players.length;
-  const fontSize = getFontSize(players.length, radius);
+  const slice = (Math.PI * 2) / items.length;
+  const fontSize = getFontSize(items.length, radius);
 
-  players.forEach((player, index) => {
+  items.forEach((item, index) => {
     const start = index * slice;
     const end = start + slice;
 
-    ctx.beginPath();
-    ctx.moveTo(center, center);
-    ctx.arc(center, center, radius, start, end);
-    ctx.closePath();
-    ctx.fillStyle = `hsl(${(index * 360) / players.length}, 75%, 55%)`;
-    ctx.fill();
-    ctx.strokeStyle = "white";
-    ctx.lineWidth = 2;
-    ctx.stroke();
+    targetCtx.beginPath();
+    targetCtx.moveTo(center, center);
+    targetCtx.arc(center, center, radius, start, end);
+    targetCtx.closePath();
+    targetCtx.fillStyle = `hsl(${(index * 360) / items.length}, 75%, 55%)`;
+    targetCtx.fill();
+    targetCtx.strokeStyle = "white";
+    targetCtx.lineWidth = 2;
+    targetCtx.stroke();
 
-    ctx.save();
-    ctx.translate(center, center);
-    ctx.rotate(start + slice / 2);
-    ctx.textAlign = "right";
-    ctx.textBaseline = "middle";
-    ctx.fillStyle = "#000000";
-    ctx.font = `bold ${fontSize}px Arial`;
-    const maxChars = players.length <= 6 ? 14 : 11;
-    let displayText = player.length > maxChars ? player.substring(0, maxChars - 2) + "..." : player;
-    ctx.fillText(displayText, radius - 18, 0);
-    ctx.restore();
+    targetCtx.save();
+    targetCtx.translate(center, center);
+    targetCtx.rotate(start + slice / 2);
+    targetCtx.textAlign = "right";
+    targetCtx.textBaseline = "middle";
+    targetCtx.fillStyle = "#000000";
+    targetCtx.font = `bold ${fontSize}px Arial`;
+    const maxChars = items.length <= 6 ? 16 : items.length <= 8 ? 14 : 11;
+    const label = getLabel(item);
+    let displayText = label.length > maxChars ? label.substring(0, maxChars - 2) + "..." : label;
+    targetCtx.fillText(displayText, radius - 18, 0);
+    targetCtx.restore();
   });
 
-  ctx.beginPath();
-  ctx.arc(center, center, 22, 0, Math.PI * 2);
-  ctx.fillStyle = "white";
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(center, center, 15, 0, Math.PI * 2);
-  ctx.fillStyle = "#1e293b";
-  ctx.fill();
+  targetCtx.beginPath();
+  targetCtx.arc(center, center, 22, 0, Math.PI * 2);
+  targetCtx.fillStyle = "white";
+  targetCtx.fill();
+  targetCtx.beginPath();
+  targetCtx.arc(center, center, 15, 0, Math.PI * 2);
+  targetCtx.fillStyle = "#1e293b";
+  targetCtx.fill();
+}
+
+function drawWheel() {
+  drawGenericWheel(ctx, canvas, players, p => p);
 }
 
 function drawWheelRotated() {
-  const size = canvas.width;
-  const center = size / 2;
-  const radius = center - 2;
-
-  ctx.clearRect(0, 0, size, size);
-  if (players.length === 0) return;
-
-  const slice = (Math.PI * 2) / players.length;
-  const fontSize = getFontSize(players.length, radius);
-
-  players.forEach((player, index) => {
-    const start = index * slice;
-    const end = start + slice;
-
-    ctx.beginPath();
-    ctx.moveTo(center, center);
-    ctx.arc(center, center, radius, start, end);
-    ctx.closePath();
-    ctx.fillStyle = `hsl(${(index * 360) / players.length}, 75%, 55%)`;
-    ctx.fill();
-    ctx.strokeStyle = "white";
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    ctx.save();
-    ctx.translate(center, center);
-    ctx.rotate(start + slice / 2);
-    ctx.textAlign = "right";
-    ctx.textBaseline = "middle";
-    ctx.fillStyle = "#000000";
-    ctx.font = `bold ${fontSize}px Arial`;
-    const maxChars = players.length <= 6 ? 14 : 11;
-    let displayText = player.length > maxChars ? player.substring(0, maxChars - 2) + "..." : player;
-    ctx.fillText(displayText, radius - 18, 0);
-    ctx.restore();
-  });
-
-  ctx.beginPath();
-  ctx.arc(center, center, 22, 0, Math.PI * 2);
-  ctx.fillStyle = "white";
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(center, center, 15, 0, Math.PI * 2);
-  ctx.fillStyle = "#1e293b";
-  ctx.fill();
+  // Igual que drawWheel pero se usa dentro del save/rotate/restore del canvas durante la animación
+  drawGenericWheel(ctx, canvas, players, p => p);
 }
 
 function easeOut(t) {
   return 1 - Math.pow(1 - t, 3);
 }
 
-function spin() {
-  if (spinning || players.length === 0) {
-    if (players.length === 0) alert("No hay jugadores.");
-    return;
-  }
-  spinning = true;
-
-  const selectedIndex = Math.floor(Math.random() * players.length);
-  const slice = (Math.PI * 2) / players.length;
+function genericSpin({ items, ctxRef, canvasRef, getAngleState, setAngleState, onDone }) {
+  const selectedIndex = Math.floor(Math.random() * items.length);
+  const slice = (Math.PI * 2) / items.length;
   const sectorCenter = selectedIndex * slice + slice / 2;
   const targetAngle = -Math.PI / 2 - sectorCenter;
   const extraSpins = Math.PI * 2 * (8 + Math.floor(Math.random() * 4));
-  let delta = ((targetAngle - currentAngle) % (Math.PI * 2));
+  let delta = ((targetAngle - getAngleState()) % (Math.PI * 2));
   if (delta < 0) delta += Math.PI * 2;
   delta += extraSpins;
 
-  const startAngle = currentAngle;
+  const startAngle = getAngleState();
   const duration = 5000;
   const startTime = performance.now();
 
@@ -237,44 +333,157 @@ function spin() {
     const elapsed = now - startTime;
     const t = Math.min(elapsed / duration, 1);
     const eased = easeOut(t);
-    currentAngle = startAngle + delta * eased;
+    const angle = startAngle + delta * eased;
+    setAngleState(angle);
 
-    ctx.save();
-    ctx.translate(canvas.width / 2, canvas.height / 2);
-    ctx.rotate(currentAngle);
-    ctx.translate(-canvas.width / 2, -canvas.height / 2);
-    drawWheelRotated();
-    ctx.restore();
+    ctxRef.save();
+    ctxRef.translate(canvasRef.width / 2, canvasRef.height / 2);
+    ctxRef.rotate(angle);
+    ctxRef.translate(-canvasRef.width / 2, -canvasRef.height / 2);
+    drawGenericWheel(ctxRef, canvasRef, items, getLabelFor(items));
+    ctxRef.restore();
 
     if (t < 1) {
       requestAnimationFrame(animate);
     } else {
-      currentAngle = startAngle + delta;
-      spinning = false;
-      addPlayer(players[selectedIndex], selectedIndex);
+      setAngleState(startAngle + delta);
+      onDone(selectedIndex);
     }
   }
 
   requestAnimationFrame(animate);
 }
 
-function addPlayer(name, index) {
-  const li = document.createElement("li");
-  li.className = "card bg-white/10 rounded-xl p-3 font-semibold";
-  li.textContent = name;
-  turn++;
+function getLabelFor(items) {
+  // Detecta si son mapas (objetos con .name) o jugadores (strings)
+  if (items.length && typeof items[0] === "object") return m => m.name;
+  return p => p;
+}
 
-  if (turn % 2 === 1) {
-    infectedList.appendChild(li);
-    infectedNames.push(name);
-    winner.innerHTML = `🧟 ${name}<br><span class="text-red-400 text-xl">INFECTADO</span>`;
-  } else {
-    survivorList.appendChild(li);
-    survivorNames.push(name);
-    winner.innerHTML = `🔫 ${name}<br><span class="text-green-400 text-xl">SUPERVIVIENTE</span>`;
+/* ---------- Gestión de modos de equipo ---------- */
+
+function setMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll(".mode-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.mode === mode);
+  });
+  autoTeamSizeWrap.classList.toggle("hidden", mode !== "auto");
+  modeHint.textContent = MODE_HINTS[mode];
+  resetTeams();
+}
+
+document.querySelectorAll(".mode-btn").forEach(btn => {
+  btn.addEventListener("click", () => setMode(btn.dataset.mode));
+});
+
+autoTeamSizeInput.addEventListener("input", () => {
+  autoTeamSize = parseInt(autoTeamSizeInput.value, 10);
+  autoTeamSizeLabel.textContent = `${autoTeamSize} / equipo`;
+  resetTeams();
+});
+
+function buildTeamsSkeleton() {
+  teams = [];
+
+  if (currentMode === "classic") {
+    teams.push({ id: "infected", label: "Infectados", emoji: "🧟", color: TEAM_COLORS[0], members: [], capacity: Infinity });
+    teams.push({ id: "survivors", label: "Supervivientes", emoji: "🔫", color: TEAM_COLORS[1], members: [], capacity: Infinity });
+    return;
   }
 
-  li.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  let size;
+  if (currentMode === "2v2") size = 2;
+  else if (currentMode === "3v3") size = 3;
+  else if (currentMode === "4v4") size = 4;
+  else size = autoTeamSize; // auto
+
+  const totalPlayers = players.length + countAssignedMembers();
+  const numTeams = Math.max(1, Math.ceil(totalPlayers / size)) || 1;
+
+  for (let i = 0; i < numTeams; i++) {
+    const color = TEAM_COLORS[i % TEAM_COLORS.length];
+    teams.push({
+      id: `team-${i}`,
+      label: `Equipo ${i + 1}`,
+      emoji: "👤",
+      color,
+      members: [],
+      capacity: size,
+    });
+  }
+}
+
+function countAssignedMembers() {
+  return teams.reduce((sum, t) => sum + t.members.length, 0);
+}
+
+function renderTeams() {
+  teamsContainer.innerHTML = "";
+  teams.forEach(team => {
+    const wrapper = document.createElement("div");
+    wrapper.className = `team-card glass ${team.color.bg} border ${team.color.border} rounded-3xl p-5`;
+
+    const cap = team.capacity === Infinity ? "" : ` <span class="text-sm font-normal opacity-70">(${team.members.length}/${team.capacity})</span>`;
+    wrapper.innerHTML = `
+      <h2 class="${team.color.text} text-2xl font-bold mb-4">${team.emoji} ${team.label}${cap}</h2>
+      <ul class="space-y-2" data-team-list="${team.id}"></ul>
+    `;
+    const ul = wrapper.querySelector("ul");
+    team.members.forEach(name => {
+      const li = document.createElement("li");
+      li.className = "card bg-white/10 rounded-xl p-3 font-semibold";
+      li.textContent = name;
+      ul.appendChild(li);
+    });
+
+    teamsContainer.appendChild(wrapper);
+  });
+}
+
+function resetTeams() {
+  buildTeamsSkeleton();
+  renderTeams();
+}
+
+function pickNextTeam() {
+  // Modo clásico: alterna estrictamente infectado/superviviente
+  if (currentMode === "classic") {
+    turn++;
+    return turn % 2 === 1 ? teams[0] : teams[1];
+  }
+
+  // Otros modos: reparte en rotación estricta (Equipo 1, Equipo 2, Equipo 3, Equipo 1, ...)
+  // igual que infectados/supervivientes alternan, en vez de llenar un equipo
+  // completo antes de pasar al siguiente.
+  let attempts = 0;
+  let candidate;
+  while (attempts < teams.length) {
+    const idx = turn % teams.length;
+    candidate = teams[idx];
+    turn++;
+    if (candidate.members.length < candidate.capacity) {
+      return candidate;
+    }
+    attempts++;
+  }
+  // Fallback: si por algún desbalance todos están llenos, cae en el último equipo
+  return teams[teams.length - 1];
+}
+
+function addPlayer(name, index) {
+  buildTeamsSkeletonIfNeeded();
+
+  const team = pickNextTeam();
+  team.members.push(name);
+  renderTeams();
+
+  const lastTeamCard = teamsContainer.querySelector(`[data-team-list="${team.id}"]`);
+  if (lastTeamCard && lastTeamCard.lastElementChild) {
+    lastTeamCard.lastElementChild.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  winner.innerHTML = `${team.emoji} ${name}<br><span class="${team.color.text} text-xl">${team.label.toUpperCase()}</span>`;
+
   players.splice(index, 1);
   currentAngle = currentAngle % (Math.PI * 2);
   drawWheel();
@@ -285,17 +494,39 @@ function addPlayer(name, index) {
   }
 }
 
+function buildTeamsSkeletonIfNeeded() {
+  if (teams.length === 0) buildTeamsSkeleton();
+}
+
+function spin() {
+  if (spinning || players.length === 0) {
+    if (players.length === 0) alert("No hay jugadores.");
+    return;
+  }
+  spinning = true;
+  buildTeamsSkeletonIfNeeded();
+
+  genericSpin({
+    items: players,
+    ctxRef: ctx,
+    canvasRef: canvas,
+    getAngleState: () => currentAngle,
+    setAngleState: (a) => { currentAngle = a; },
+    onDone: (selectedIndex) => {
+      spinning = false;
+      addPlayer(players[selectedIndex], selectedIndex);
+    },
+  });
+}
+
 document.getElementById("spinBtn").onclick = spin;
 
 document.getElementById("resetBtn").onclick = () => {
   currentAngle = 0;
   turn = 0;
   spinning = false;
-  infectedNames.length = 0;
-  survivorNames.length = 0;
-  infectedList.innerHTML = "";
-  survivorList.innerHTML = "";
   winner.innerHTML = "";
+  resetTeams();
   updatePlayers();
 };
 
@@ -303,23 +534,18 @@ document.getElementById("clearBtn").onclick = () => {
   currentAngle = 0;
   turn = 0;
   spinning = false;
-  infectedNames.length = 0;
-  survivorNames.length = 0;
-  infectedList.innerHTML = "";
-  survivorList.innerHTML = "";
   winner.innerHTML = "";
   input.value = "";
+  resetTeams();
   updatePlayers();
 };
 
 document.getElementById("copyBtn").onclick = () => {
-  const inf = infectedNames.length > 0
-    ? "🧟 INFECTADOS:\n" + infectedNames.map((n, i) => `  ${i + 1}. ${n}`).join("\n")
-    : "🧟 INFECTADOS: (vacío)";
-  const sur = survivorNames.length > 0
-    ? "🔫 SUPERVIVIENTES:\n" + survivorNames.map((n, i) => `  ${i + 1}. ${n}`).join("\n")
-    : "🔫 SUPERVIVIENTES: (vacío)";
-  const text = `=== LEFT 4 DEAD 2 — EQUIPOS ===\n\n${inf}\n\n${sur}`;
+  const blocks = teams.map(team => {
+    if (team.members.length === 0) return `${team.emoji} ${team.label.toUpperCase()}: (vacío)`;
+    return `${team.emoji} ${team.label.toUpperCase()}:\n` + team.members.map((n, i) => `  ${i + 1}. ${n}`).join("\n");
+  });
+  const text = `=== LEFT 4 DEAD 2 — EQUIPOS ===\n\n${blocks.join("\n\n")}`;
 
   navigator.clipboard.writeText(text).then(() => {
     const msg = document.getElementById("copyMsg");
@@ -329,7 +555,97 @@ document.getElementById("copyBtn").onclick = () => {
 };
 
 input.addEventListener("input", updatePlayers);
+
+/* ============================================================
+   RULETA DE MAPAS
+   ============================================================ */
+const mapCanvas = document.getElementById("mapWheel");
+const mapCtx = mapCanvas.getContext("2d");
+const mapsList = document.getElementById("mapsList");
+const mapWinner = document.getElementById("mapWinner");
+const mapCountLabel = document.getElementById("mapCount");
+
+let mapAngle = 0;
+let mapSpinning = false;
+let activeMaps = MAPS.map(m => ({ ...m, enabled: true }));
+
+function getActiveMaps() {
+  return activeMaps.filter(m => m.enabled);
+}
+
+function drawMapWheel() {
+  drawGenericWheel(mapCtx, mapCanvas, getActiveMaps(), m => m.name);
+}
+
+function renderMapsList() {
+  mapsList.innerHTML = "";
+  activeMaps.forEach((m, idx) => {
+    const row = document.createElement("label");
+    row.className = "flex items-center gap-3 bg-white/5 hover:bg-white/10 rounded-xl p-3 cursor-pointer transition";
+    row.innerHTML = `
+      <input type="checkbox" data-idx="${idx}" ${m.enabled ? "checked" : ""} class="w-5 h-5 accent-purple-500">
+      <span class="flex-1 font-semibold">${m.name}</span>
+      ${m.official ? '<span class="text-xs bg-purple-500/20 text-purple-300 px-2 py-1 rounded-lg">Oficial</span>' : ""}
+    `;
+    mapsList.appendChild(row);
+  });
+  mapCountLabel.textContent = getActiveMaps().length;
+  drawMapWheel();
+}
+
+mapsList.addEventListener("change", (e) => {
+  const idx = e.target.dataset.idx;
+  if (idx === undefined) return;
+  activeMaps[idx].enabled = e.target.checked;
+  mapCountLabel.textContent = getActiveMaps().length;
+  drawMapWheel();
+});
+
+document.getElementById("mapsAllBtn").onclick = () => {
+  activeMaps.forEach(m => m.enabled = true);
+  renderMapsList();
+};
+document.getElementById("mapsNoneBtn").onclick = () => {
+  activeMaps.forEach(m => m.enabled = false);
+  renderMapsList();
+};
+document.getElementById("mapsOfficialBtn").onclick = () => {
+  activeMaps.forEach(m => m.enabled = !!m.official);
+  renderMapsList();
+};
+
+function spinMap() {
+  const active = getActiveMaps();
+  if (mapSpinning || active.length === 0) {
+    if (active.length === 0) alert("No hay mapas seleccionados.");
+    return;
+  }
+  mapSpinning = true;
+  mapWinner.innerHTML = "";
+
+  genericSpin({
+    items: active,
+    ctxRef: mapCtx,
+    canvasRef: mapCanvas,
+    getAngleState: () => mapAngle,
+    setAngleState: (a) => { mapAngle = a; },
+    onDone: (selectedIndex) => {
+      mapSpinning = false;
+      const map = active[selectedIndex];
+      mapWinner.innerHTML = `🗺️ <span class="text-purple-400">${map.name}</span>`;
+    },
+  });
+}
+
+document.getElementById("spinMapBtn").onclick = spinMap;
+
+/* ============================================================
+   INIT
+   ============================================================ */
+setMode("classic");
+renderMapsList();
 updatePlayers();
+
 </script>
 </body>
 </html>
