@@ -4,25 +4,27 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ruleta Left 4 Dead 2</title>
-<meta name="google-site-verification" content="I167MB2LKQeEEBX_vRR9Se-KP-e8f3uRgkgMKmjupTs" />
+<meta name="google-site-verification" content="I167MB2LKQeEBX_vRR9Se-KP-e8f3uRgkgMKmjupTs" />
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
 body { background: radial-gradient(circle at top,#1e293b,#020617); }
 .glass { backdrop-filter: blur(15px); }
-.card { animation: fadeIn .4s ease; }
-@keyframes fadeIn {
-  from { opacity:0; transform:translateY(10px); }
-  to { opacity:1; transform:translateY(0); }
-}
 .mode-btn { transition: all .15s ease; }
 .mode-btn.active {
   background: #16a34a;
   box-shadow: 0 0 0 2px rgba(255,255,255,.4) inset;
 }
-.team-card { animation: fadeIn .4s ease; }
 .tab-btn.active {
   background: rgba(255,255,255,.12);
   border-color: rgba(255,255,255,.3);
+}
+/* Animación solo para el ítem nuevo que se agrega */
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.new-member {
+  animation: slideIn 0.35s ease forwards;
 }
 </style>
 </head>
@@ -33,16 +35,12 @@ body { background: radial-gradient(circle at top,#1e293b,#020617); }
     <p class="text-slate-400">Ruleta automática de equipos y mapas</p>
   </div>
 
-  <!-- TABS -->
   <div class="flex justify-center gap-3 mb-6">
     <button id="tabTeams" class="tab-btn active glass bg-white/5 border border-white/10 px-6 py-3 rounded-2xl font-bold transition">👥 Ruleta de Equipos</button>
-    <button id="tabMaps" class="tab-btn glass bg-white/5 border border-white/10 px-6 py-3 rounded-2xl font-bold transition">🗺️ Ruleta de Mapas</button>
+    <button id="tabMaps"  class="tab-btn glass bg-white/5 border border-white/10 px-6 py-3 rounded-2xl font-bold transition">🗺️ Ruleta de Mapas</button>
   </div>
 
-  <!-- ===================== VISTA EQUIPOS ===================== -->
   <div id="viewTeams" class="grid lg:grid-cols-3 gap-6">
-
-    <!-- JUGADORES -->
     <div class="glass bg-white/5 border border-white/10 rounded-3xl p-5">
       <h2 class="text-2xl font-bold mb-4">👥 Jugadores</h2>
       <textarea id="playersInput" class="w-full h-72 bg-slate-900 rounded-xl p-4 outline-none border border-slate-700 text-white">Mati
@@ -60,16 +58,14 @@ xd-tony-xd</textarea>
           <button id="resetBtn" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-xl transition text-sm">🔄 Reiniciar</button>
         </div>
       </div>
-
-      <!-- MODO DE EQUIPOS -->
       <div class="mt-5 pt-5 border-t border-white/10">
         <h3 class="font-bold mb-3 text-slate-300 text-sm uppercase tracking-wide">⚙️ Modo de equipos</h3>
         <div class="grid grid-cols-2 gap-2">
-          <button data-mode="classic" class="mode-btn active bg-white/10 hover:bg-white/20 px-3 py-2 rounded-xl text-sm font-semibold">🧟 Infectados vs 🔫 Supervivientes</button>
-          <button data-mode="2v2" class="mode-btn bg-white/10 hover:bg-white/20 px-3 py-2 rounded-xl text-sm font-semibold">2 vs 2</button>
-          <button data-mode="3v3" class="mode-btn bg-white/10 hover:bg-white/20 px-3 py-2 rounded-xl text-sm font-semibold">3 vs 3</button>
-          <button data-mode="4v4" class="mode-btn bg-white/10 hover:bg-white/20 px-3 py-2 rounded-xl text-sm font-semibold">4 vs 4</button>
-          <button data-mode="auto" class="mode-btn bg-white/10 hover:bg-white/20 px-3 py-2 rounded-xl text-sm font-semibold col-span-2">🧩 Equipos automáticos (varios)</button>
+          <button data-mode="classic" class="mode-btn active bg-white/10 hover:bg-white/20 px-3 py-2 rounded-xl text-sm font-semibold">🔫 Supervivientes vs 🧟 Infectados</button>
+          <button data-mode="2v2"    class="mode-btn bg-white/10 hover:bg-white/20 px-3 py-2 rounded-xl text-sm font-semibold">2 vs 2</button>
+          <button data-mode="3v3"    class="mode-btn bg-white/10 hover:bg-white/20 px-3 py-2 rounded-xl text-sm font-semibold">3 vs 3</button>
+          <button data-mode="4v4"    class="mode-btn bg-white/10 hover:bg-white/20 px-3 py-2 rounded-xl text-sm font-semibold">4 vs 4</button>
+          <button data-mode="auto"   class="mode-btn bg-white/10 hover:bg-white/20 px-3 py-2 rounded-xl text-sm font-semibold col-span-2">🧩 Equipos automáticos (varios)</button>
         </div>
         <div id="autoTeamSizeWrap" class="mt-3 hidden">
           <label class="text-sm text-slate-400 block mb-1">Jugadores por equipo</label>
@@ -82,7 +78,6 @@ xd-tony-xd</textarea>
       </div>
     </div>
 
-    <!-- RULETA -->
     <div class="glass bg-white/5 border border-white/10 rounded-3xl p-5">
       <div class="flex justify-center">
         <div class="relative">
@@ -98,21 +93,14 @@ xd-tony-xd</textarea>
       <div id="winner" class="text-center mt-5 text-3xl font-black min-h-[80px]"></div>
     </div>
 
-    <!-- EQUIPOS -->
     <div class="space-y-5">
-      <div id="teamsContainer" class="space-y-5">
-        <!-- Se genera dinámicamente según el modo -->
-      </div>
+      <div id="teamsContainer" class="space-y-5"></div>
       <button id="copyBtn" class="w-full bg-blue-600 hover:bg-blue-700 px-4 py-3 rounded-2xl font-bold transition text-lg">📋 Copiar equipos</button>
       <div id="copyMsg" class="text-center text-green-400 font-bold text-sm hidden">✅ ¡Copiado al portapapeles!</div>
     </div>
-
   </div>
 
-  <!-- ===================== VISTA MAPAS ===================== -->
   <div id="viewMaps" class="hidden grid lg:grid-cols-2 gap-6">
-
-    <!-- RULETA DE MAPAS -->
     <div class="glass bg-white/5 border border-white/10 rounded-3xl p-5">
       <h2 class="text-2xl font-bold mb-4 text-center">🗺️ Ruleta de Mapas</h2>
       <div class="flex justify-center">
@@ -128,455 +116,359 @@ xd-tony-xd</textarea>
       </div>
       <div id="mapWinner" class="text-center mt-5 text-2xl font-black min-h-[60px]"></div>
     </div>
-
-    <!-- LISTA DE MAPAS -->
     <div class="glass bg-white/5 border border-white/10 rounded-3xl p-5">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-2xl font-bold">📜 Campañas disponibles</h2>
         <span class="text-sm text-slate-400"><span id="mapCount">0</span> activos</span>
       </div>
       <div class="flex gap-2 mb-3">
-        <button id="mapsAllBtn" class="text-xs bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg">Seleccionar todos</button>
-        <button id="mapsNoneBtn" class="text-xs bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg">Quitar todos</button>
+        <button id="mapsAllBtn"      class="text-xs bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg">Seleccionar todos</button>
+        <button id="mapsNoneBtn"     class="text-xs bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg">Quitar todos</button>
         <button id="mapsOfficialBtn" class="text-xs bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg">Solo oficiales</button>
       </div>
       <div id="mapsList" class="h-[480px] overflow-y-auto space-y-2 pr-1"></div>
     </div>
-
   </div>
-
 </div>
 
 <script>
-/* ============================================================
-   DATOS: Campañas oficiales de Left 4 Dead 2
-   ============================================================ */
 const MAPS = [
-  { name: "Dead Center", official: true },
+  { name: "Dead Center",   official: true },
   { name: "Dark Carnival", official: true },
-  { name: "Swamp Fever", official: true },
-  { name: "Hard Rain", official: true },
-  { name: "The Parish", official: true },
-  { name: "The Passing", official: true },
-  { name: "Crash Course", official: true },
-  { name: "Death Toll", official: true },
-  { name: "Dead Air", official: true },
+  { name: "Swamp Fever",   official: true },
+  { name: "Hard Rain",     official: true },
+  { name: "The Parish",    official: true },
+  { name: "The Passing",   official: true },
+  { name: "Crash Course",  official: true },
+  { name: "Death Toll",    official: true },
+  { name: "Dead Air",      official: true },
   { name: "Blood Harvest", official: true },
   { name: "The Sacrifice", official: true },
-  { name: "No Mercy", official: true },
-  { name: "Cold Stream", official: true },
+  { name: "No Mercy",      official: true },
+  { name: "Cold Stream",   official: true },
 ];
 
-/* ============================================================
-   TABS
-   ============================================================ */
-const tabTeams = document.getElementById("tabTeams");
-const tabMaps = document.getElementById("tabMaps");
+/* ── Fisher-Yates ── */
+function shuffle(arr) {
+  let a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(((Math.random() + Math.random() + Math.random()) / 3) * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+let spinQueue = [];
+function refillQueue(list) { spinQueue = shuffle(shuffle(list)); }
+function pickFromQueue(list) {
+  if (!spinQueue.length) refillQueue(list);
+  return spinQueue.shift();
+}
+
+/* ── Tabs ── */
+const tabTeams  = document.getElementById("tabTeams");
+const tabMaps   = document.getElementById("tabMaps");
 const viewTeams = document.getElementById("viewTeams");
-const viewMaps = document.getElementById("viewMaps");
+const viewMaps  = document.getElementById("viewMaps");
+tabTeams.onclick = () => { tabTeams.classList.add("active"); tabMaps.classList.remove("active"); viewTeams.classList.remove("hidden"); viewMaps.classList.add("hidden"); };
+tabMaps.onclick  = () => { tabMaps.classList.add("active"); tabTeams.classList.remove("active"); viewMaps.classList.remove("hidden"); viewTeams.classList.add("hidden"); drawMapWheel(); };
 
-tabTeams.onclick = () => {
-  tabTeams.classList.add("active");
-  tabMaps.classList.remove("active");
-  viewTeams.classList.remove("hidden");
-  viewMaps.classList.add("hidden");
-};
-tabMaps.onclick = () => {
-  tabMaps.classList.add("active");
-  tabTeams.classList.remove("active");
-  viewMaps.classList.remove("hidden");
-  viewTeams.classList.add("hidden");
-  drawMapWheel();
-};
-
-/* ============================================================
-   RULETA DE JUGADORES / EQUIPOS
-   ============================================================ */
-const canvas = document.getElementById("wheel");
-const ctx = canvas.getContext("2d");
-const input = document.getElementById("playersInput");
-const teamsContainer = document.getElementById("teamsContainer");
-const winner = document.getElementById("winner");
-const modeHint = document.getElementById("modeHint");
+/* ── Estado ── */
+const canvas  = document.getElementById("wheel");
+const ctx     = canvas.getContext("2d");
+const input   = document.getElementById("playersInput");
+const winnerEl = document.getElementById("winner");
+const teamsContainer   = document.getElementById("teamsContainer");
 const autoTeamSizeWrap = document.getElementById("autoTeamSizeWrap");
 const autoTeamSizeInput = document.getElementById("autoTeamSize");
 const autoTeamSizeLabel = document.getElementById("autoTeamSizeLabel");
 
-let players = [];
-let currentAngle = 0;
-let spinning = false;
-let turn = 0;
-let currentMode = "classic"; // classic | 2v2 | 3v3 | 4v4 | auto
-let autoTeamSize = 4;
-
-// Estructura de equipos generada dinámicamente según el modo
-// teams = [{ id, label, emoji, colorClass, members: [] }]
-let teams = [];
+let players        = [];
+let displayPlayers = [];
+let wheelAngle     = 0;
+let spinning       = false;
+let turn           = 0;
+let currentMode    = "classic";
+let autoTeamSize   = 4;
+let teams          = [];
 
 const MODE_HINTS = {
-  classic: "Cada jugador que sale en la ruleta se reparte alternadamente entre Infectados y Supervivientes.",
-  "2v2": "Se crean equipos de 2 jugadores cada uno. Si sobran jugadores, se reparten en un equipo extra.",
-  "3v3": "Se crean equipos de 3 jugadores cada uno. Si sobran jugadores, se reparten en un equipo extra.",
-  "4v4": "Se crean equipos de 4 jugadores cada uno. Si sobran jugadores, se reparten en un equipo extra.",
-  auto: "Se generan automáticamente todos los equipos necesarios según el tamaño elegido. Ej: 16 jugadores / 4 por equipo = 4 equipos.",
+  classic: "Cada jugador se reparte alternadamente entre Supervivientes e Infectados.",
+  "2v2": "Equipos de 2 jugadores cada uno.",
+  "3v3": "Equipos de 3 jugadores cada uno.",
+  "4v4": "Equipos de 4 jugadores cada uno.",
+  auto:  "Equipos automáticos según el tamaño elegido.",
 };
 
 const TEAM_COLORS = [
-  { bg: "bg-red-500/10", border: "border-red-500/20", text: "text-red-400" },
-  { bg: "bg-green-500/10", border: "border-green-500/20", text: "text-green-400" },
-  { bg: "bg-blue-500/10", border: "border-blue-500/20", text: "text-blue-400" },
+  { bg: "bg-green-500/10",  border: "border-green-500/20",  text: "text-green-400"  },
+  { bg: "bg-red-500/10",    border: "border-red-500/20",    text: "text-red-400"    },
+  { bg: "bg-blue-500/10",   border: "border-blue-500/20",   text: "text-blue-400"   },
   { bg: "bg-yellow-500/10", border: "border-yellow-500/20", text: "text-yellow-400" },
   { bg: "bg-purple-500/10", border: "border-purple-500/20", text: "text-purple-400" },
-  { bg: "bg-pink-500/10", border: "border-pink-500/20", text: "text-pink-400" },
-  { bg: "bg-cyan-500/10", border: "border-cyan-500/20", text: "text-cyan-400" },
+  { bg: "bg-pink-500/10",   border: "border-pink-500/20",   text: "text-pink-400"   },
+  { bg: "bg-cyan-500/10",   border: "border-cyan-500/20",   text: "text-cyan-400"   },
   { bg: "bg-orange-500/10", border: "border-orange-500/20", text: "text-orange-400" },
 ];
 
+/* ── Jugadores ── */
 function updatePlayers() {
   players = input.value.split("\n").map(x => x.trim()).filter(x => x);
+  displayPlayers = [...players];
   document.getElementById("countPlayers").textContent = players.length;
-  drawWheel();
-}
-
-function getFontSize(numPlayers, radius) {
-  if (numPlayers <= 4) return Math.floor(radius * 0.11);
-  if (numPlayers <= 6) return Math.floor(radius * 0.09);
-  if (numPlayers <= 8) return Math.floor(radius * 0.075);
-  return Math.floor(radius * 0.065);
-}
-
-function drawGenericWheel(targetCtx, targetCanvas, items, getLabel) {
-  const size = targetCanvas.width;
-  const center = size / 2;
-  const radius = center - 2;
-
-  targetCtx.clearRect(0, 0, size, size);
-
-  if (items.length === 0) {
-    targetCtx.fillStyle = "white";
-    targetCtx.font = "bold 32px Arial";
-    targetCtx.textAlign = "center";
-    targetCtx.textBaseline = "middle";
-    targetCtx.fillText("Sin elementos", center, center);
-    return;
-  }
-
-  const slice = (Math.PI * 2) / items.length;
-  const fontSize = getFontSize(items.length, radius);
-
-  items.forEach((item, index) => {
-    const start = index * slice;
-    const end = start + slice;
-
-    targetCtx.beginPath();
-    targetCtx.moveTo(center, center);
-    targetCtx.arc(center, center, radius, start, end);
-    targetCtx.closePath();
-    targetCtx.fillStyle = `hsl(${(index * 360) / items.length}, 75%, 55%)`;
-    targetCtx.fill();
-    targetCtx.strokeStyle = "white";
-    targetCtx.lineWidth = 2;
-    targetCtx.stroke();
-
-    targetCtx.save();
-    targetCtx.translate(center, center);
-    targetCtx.rotate(start + slice / 2);
-    targetCtx.textAlign = "right";
-    targetCtx.textBaseline = "middle";
-    targetCtx.fillStyle = "#000000";
-    targetCtx.font = `bold ${fontSize}px Arial`;
-    const maxChars = items.length <= 6 ? 16 : items.length <= 8 ? 14 : 11;
-    const label = getLabel(item);
-    let displayText = label.length > maxChars ? label.substring(0, maxChars - 2) + "..." : label;
-    targetCtx.fillText(displayText, radius - 18, 0);
-    targetCtx.restore();
-  });
-
-  targetCtx.beginPath();
-  targetCtx.arc(center, center, 22, 0, Math.PI * 2);
-  targetCtx.fillStyle = "white";
-  targetCtx.fill();
-  targetCtx.beginPath();
-  targetCtx.arc(center, center, 15, 0, Math.PI * 2);
-  targetCtx.fillStyle = "#1e293b";
-  targetCtx.fill();
-}
-
-function drawWheel() {
-  drawGenericWheel(ctx, canvas, players, p => p);
-}
-
-function drawWheelRotated() {
-  // Igual que drawWheel pero se usa dentro del save/rotate/restore del canvas durante la animación
-  drawGenericWheel(ctx, canvas, players, p => p);
-}
-
-function easeOut(t) {
-  return 1 - Math.pow(1 - t, 3);
-}
-
-function genericSpin({ items, ctxRef, canvasRef, getAngleState, setAngleState, onDone }) {
-  const selectedIndex = Math.floor(Math.random() * items.length);
-  const slice = (Math.PI * 2) / items.length;
-  const sectorCenter = selectedIndex * slice + slice / 2;
-  const targetAngle = -Math.PI / 2 - sectorCenter;
-  const extraSpins = Math.PI * 2 * (8 + Math.floor(Math.random() * 4));
-  let delta = ((targetAngle - getAngleState()) % (Math.PI * 2));
-  if (delta < 0) delta += Math.PI * 2;
-  delta += extraSpins;
-
-  const startAngle = getAngleState();
-  const duration = 5000;
-  const startTime = performance.now();
-
-  function animate(now) {
-    const elapsed = now - startTime;
-    const t = Math.min(elapsed / duration, 1);
-    const eased = easeOut(t);
-    const angle = startAngle + delta * eased;
-    setAngleState(angle);
-
-    ctxRef.save();
-    ctxRef.translate(canvasRef.width / 2, canvasRef.height / 2);
-    ctxRef.rotate(angle);
-    ctxRef.translate(-canvasRef.width / 2, -canvasRef.height / 2);
-    drawGenericWheel(ctxRef, canvasRef, items, getLabelFor(items));
-    ctxRef.restore();
-
-    if (t < 1) {
-      requestAnimationFrame(animate);
-    } else {
-      setAngleState(startAngle + delta);
-      onDone(selectedIndex);
-    }
-  }
-
-  requestAnimationFrame(animate);
-}
-
-function getLabelFor(items) {
-  // Detecta si son mapas (objetos con .name) o jugadores (strings)
-  if (items.length && typeof items[0] === "object") return m => m.name;
-  return p => p;
-}
-
-/* ---------- Gestión de modos de equipo ---------- */
-
-function setMode(mode) {
-  currentMode = mode;
-  document.querySelectorAll(".mode-btn").forEach(btn => {
-    btn.classList.toggle("active", btn.dataset.mode === mode);
-  });
-  autoTeamSizeWrap.classList.toggle("hidden", mode !== "auto");
-  modeHint.textContent = MODE_HINTS[mode];
-  resetTeams();
-}
-
-document.querySelectorAll(".mode-btn").forEach(btn => {
-  btn.addEventListener("click", () => setMode(btn.dataset.mode));
-});
-
-autoTeamSizeInput.addEventListener("input", () => {
-  autoTeamSize = parseInt(autoTeamSizeInput.value, 10);
-  autoTeamSizeLabel.textContent = `${autoTeamSize} / equipo`;
-  resetTeams();
-});
-
-function buildTeamsSkeleton() {
-  teams = [];
-
-  if (currentMode === "classic") {
-    teams.push({ id: "infected", label: "Infectados", emoji: "🧟", color: TEAM_COLORS[0], members: [], capacity: Infinity });
-    teams.push({ id: "survivors", label: "Supervivientes", emoji: "🔫", color: TEAM_COLORS[1], members: [], capacity: Infinity });
-    return;
-  }
-
-  let size;
-  if (currentMode === "2v2") size = 2;
-  else if (currentMode === "3v3") size = 3;
-  else if (currentMode === "4v4") size = 4;
-  else size = autoTeamSize; // auto
-
-  const totalPlayers = players.length + countAssignedMembers();
-  const numTeams = Math.max(1, Math.ceil(totalPlayers / size)) || 1;
-
-  for (let i = 0; i < numTeams; i++) {
-    const color = TEAM_COLORS[i % TEAM_COLORS.length];
-    teams.push({
-      id: `team-${i}`,
-      label: `Equipo ${i + 1}`,
-      emoji: "👤",
-      color,
-      members: [],
-      capacity: size,
-    });
-  }
-}
-
-function countAssignedMembers() {
-  return teams.reduce((sum, t) => sum + t.members.length, 0);
-}
-
-function renderTeams() {
-  teamsContainer.innerHTML = "";
-  teams.forEach(team => {
-    const wrapper = document.createElement("div");
-    wrapper.className = `team-card glass ${team.color.bg} border ${team.color.border} rounded-3xl p-5`;
-
-    const cap = team.capacity === Infinity ? "" : ` <span class="text-sm font-normal opacity-70">(${team.members.length}/${team.capacity})</span>`;
-    wrapper.innerHTML = `
-      <h2 class="${team.color.text} text-2xl font-bold mb-4">${team.emoji} ${team.label}${cap}</h2>
-      <ul class="space-y-2" data-team-list="${team.id}"></ul>
-    `;
-    const ul = wrapper.querySelector("ul");
-    team.members.forEach(name => {
-      const li = document.createElement("li");
-      li.className = "card bg-white/10 rounded-xl p-3 font-semibold";
-      li.textContent = name;
-      ul.appendChild(li);
-    });
-
-    teamsContainer.appendChild(wrapper);
-  });
-}
-
-function resetTeams() {
+  refillQueue(players);
+  drawWheelStatic();
   buildTeamsSkeleton();
   renderTeams();
 }
 
-function pickNextTeam() {
-  // Modo clásico: alterna estrictamente infectado/superviviente
-  if (currentMode === "classic") {
-    turn++;
-    return turn % 2 === 1 ? teams[0] : teams[1];
-  }
-
-  // Otros modos: reparte en rotación estricta (Equipo 1, Equipo 2, Equipo 3, Equipo 1, ...)
-  // igual que infectados/supervivientes alternan, en vez de llenar un equipo
-  // completo antes de pasar al siguiente.
-  let attempts = 0;
-  let candidate;
-  while (attempts < teams.length) {
-    const idx = turn % teams.length;
-    candidate = teams[idx];
-    turn++;
-    if (candidate.members.length < candidate.capacity) {
-      return candidate;
-    }
-    attempts++;
-  }
-  // Fallback: si por algún desbalance todos están llenos, cae en el último equipo
-  return teams[teams.length - 1];
+/* ── Canvas helpers ── */
+function getFontSize(n, r) {
+  if (n <= 4) return Math.floor(r * 0.11);
+  if (n <= 6) return Math.floor(r * 0.09);
+  if (n <= 8) return Math.floor(r * 0.075);
+  return Math.floor(r * 0.065);
 }
 
-function addPlayer(name, index) {
-  buildTeamsSkeletonIfNeeded();
-
-  const team = pickNextTeam();
-  team.members.push(name);
-  renderTeams();
-
-  const lastTeamCard = teamsContainer.querySelector(`[data-team-list="${team.id}"]`);
-  if (lastTeamCard && lastTeamCard.lastElementChild) {
-    lastTeamCard.lastElementChild.scrollIntoView({ behavior: "smooth", block: "nearest" });
+function drawWheelData(tCtx, tCanvas, items, getLabel) {
+  const sz = tCanvas.width, cx = sz / 2, r = cx - 2;
+  tCtx.clearRect(0, 0, sz, sz);
+  if (!items.length) {
+    tCtx.fillStyle = "white"; tCtx.font = "bold 32px Arial";
+    tCtx.textAlign = "center"; tCtx.textBaseline = "middle";
+    tCtx.fillText("Sin elementos", cx, cx); return;
   }
-
-  winner.innerHTML = `${team.emoji} ${name}<br><span class="${team.color.text} text-xl">${team.label.toUpperCase()}</span>`;
-
-  players.splice(index, 1);
-  currentAngle = currentAngle % (Math.PI * 2);
-  drawWheel();
-  document.getElementById("countPlayers").textContent = players.length;
-
-  if (players.length === 0) {
-    winner.innerHTML += "<br><span class='text-yellow-400 text-lg'>✅ Equipos completos</span>";
-  }
+  const slice = (Math.PI * 2) / items.length;
+  const fs    = getFontSize(items.length, r);
+  items.forEach((item, i) => {
+    const s = i * slice, e = s + slice;
+    tCtx.beginPath(); tCtx.moveTo(cx, cx);
+    tCtx.arc(cx, cx, r, s, e); tCtx.closePath();
+    tCtx.fillStyle = `hsl(${(i * 360) / items.length},75%,55%)`;
+    tCtx.fill(); tCtx.strokeStyle = "white"; tCtx.lineWidth = 2; tCtx.stroke();
+    tCtx.save(); tCtx.translate(cx, cx); tCtx.rotate(s + slice / 2);
+    tCtx.textAlign = "right"; tCtx.textBaseline = "middle";
+    tCtx.fillStyle = "#000"; tCtx.font = `bold ${fs}px Arial`;
+    const mc = items.length <= 6 ? 16 : items.length <= 8 ? 14 : 11;
+    const lbl = getLabel(item);
+    tCtx.fillText(lbl.length > mc ? lbl.slice(0, mc - 2) + "..." : lbl, r - 18, 0);
+    tCtx.restore();
+  });
+  tCtx.beginPath(); tCtx.arc(cx, cx, 22, 0, Math.PI * 2); tCtx.fillStyle = "white"; tCtx.fill();
+  tCtx.beginPath(); tCtx.arc(cx, cx, 15, 0, Math.PI * 2); tCtx.fillStyle = "#1e293b"; tCtx.fill();
 }
 
-function buildTeamsSkeletonIfNeeded() {
-  if (teams.length === 0) buildTeamsSkeleton();
+function renderWheel(angle, items) {
+  ctx.save();
+  ctx.translate(canvas.width / 2, canvas.height / 2);
+  ctx.rotate(angle);
+  ctx.translate(-canvas.width / 2, -canvas.height / 2);
+  drawWheelData(ctx, canvas, items, p => p);
+  ctx.restore();
 }
 
+function drawWheelStatic() { renderWheel(wheelAngle, displayPlayers); }
+
+function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+
+/* ── Spin ── */
 function spin() {
-  if (spinning || players.length === 0) {
-    if (players.length === 0) alert("No hay jugadores.");
-    return;
-  }
+  if (spinning || !players.length) { if (!players.length) alert("No hay jugadores."); return; }
   spinning = true;
   buildTeamsSkeletonIfNeeded();
 
-  genericSpin({
-    items: players,
-    ctxRef: ctx,
-    canvasRef: canvas,
-    getAngleState: () => currentAngle,
-    setAngleState: (a) => { currentAngle = a; },
-    onDone: (selectedIndex) => {
-      spinning = false;
-      addPlayer(players[selectedIndex], selectedIndex);
-    },
+  const nextPlayer  = pickFromQueue(players);
+  const safeIndex   = Math.max(0, players.indexOf(nextPlayer));
+  const n           = displayPlayers.length;
+  const slice       = (Math.PI * 2) / n;
+  const target      = -Math.PI / 2 - (safeIndex * slice + slice / 2);
+  const jitter      = (Math.random() - 0.5) * slice * 0.55;
+  const extra       = Math.PI * 2 * (8 + Math.floor(Math.random() * 4));
+  let delta         = ((target + jitter - wheelAngle) % (Math.PI * 2));
+  if (delta < 0) delta += Math.PI * 2;
+  delta += extra;
+
+  const startAngle = wheelAngle;
+  const t0         = performance.now();
+
+  function animate(now) {
+    const t     = Math.min((now - t0) / 5000, 1);
+    const angle = startAngle + delta * easeOut(t);
+    wheelAngle  = angle;
+    renderWheel(angle, displayPlayers);
+    if (t < 1) { requestAnimationFrame(animate); return; }
+    wheelAngle = startAngle + delta;
+    spinning   = false;
+    addPlayerToTeam(safeIndex);
+  }
+  requestAnimationFrame(animate);
+}
+
+/* ── Agregar jugador sin reconstruir el DOM ── */
+function addPlayerToTeam(indexInDisplay) {
+  const name = displayPlayers[indexInDisplay];
+  buildTeamsSkeletonIfNeeded();
+  const team = pickNextTeam();
+  team.members.push(name);
+
+  /* Actualizar solo el contador de capacidad en el header del equipo */
+  const card = teamsContainer.querySelector(`[data-team-card="${team.id}"]`);
+  if (card) {
+    /* Si existe la tarjeta, solo agregar el nuevo li */
+    const ul = card.querySelector(`[data-team-list="${team.id}"]`);
+    if (ul) {
+      const li = document.createElement("li");
+      li.className = "bg-white/10 rounded-xl p-3 font-semibold new-member";
+      li.textContent = name;
+      ul.appendChild(li);
+      li.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+    /* Actualizar contador de capacidad si aplica */
+    const capEl = card.querySelector("[data-cap]");
+    if (capEl && team.capacity !== Infinity) {
+      capEl.textContent = `(${team.members.length}/${team.capacity})`;
+    }
+  } else {
+    /* Primera vez que se crea la tarjeta de este equipo */
+    appendTeamCard(team, name);
+  }
+
+  winnerEl.innerHTML = `${team.emoji} ${name}<br><span class="${team.color.text} text-xl">${team.label.toUpperCase()}</span>`;
+
+  players.splice(players.indexOf(name), 1);
+  displayPlayers.splice(indexInDisplay, 1);
+  document.getElementById("countPlayers").textContent = players.length;
+
+  wheelAngle = ((wheelAngle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+  renderWheel(wheelAngle, displayPlayers);
+
+  if (!players.length) winnerEl.innerHTML += "<br><span class='text-yellow-400 text-lg'>✅ Equipos completos</span>";
+}
+
+/* Crea y agrega la tarjeta de un equipo por primera vez */
+function appendTeamCard(team, firstName) {
+  const wrapper = document.createElement("div");
+  wrapper.className = `glass ${team.color.bg} border ${team.color.border} rounded-3xl p-5`;
+  wrapper.setAttribute("data-team-card", team.id);
+
+  const cap = team.capacity === Infinity
+    ? ""
+    : ` <span class="text-sm font-normal opacity-70" data-cap>(${team.members.length}/${team.capacity})</span>`;
+
+  wrapper.innerHTML = `
+    <h2 class="${team.color.text} text-2xl font-bold mb-4">${team.emoji} ${team.label}${cap}</h2>
+    <ul class="space-y-2" data-team-list="${team.id}"></ul>
+  `;
+  const ul = wrapper.querySelector("ul");
+  team.members.forEach((n, idx) => {
+    const li = document.createElement("li");
+    li.className = "bg-white/10 rounded-xl p-3 font-semibold" + (idx === team.members.length - 1 ? " new-member" : "");
+    li.textContent = n;
+    ul.appendChild(li);
   });
+  teamsContainer.appendChild(wrapper);
+  ul.lastElementChild?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+/* ── Modos de equipo ── */
+function setMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll(".mode-btn").forEach(b => b.classList.toggle("active", b.dataset.mode === mode));
+  autoTeamSizeWrap.classList.toggle("hidden", mode !== "auto");
+  document.getElementById("modeHint").textContent = MODE_HINTS[mode];
+  resetTeams();
+  updatePlayers();
+}
+document.querySelectorAll(".mode-btn").forEach(b => b.addEventListener("click", () => setMode(b.dataset.mode)));
+autoTeamSizeInput.addEventListener("input", () => {
+  autoTeamSize = +autoTeamSizeInput.value;
+  autoTeamSizeLabel.textContent = `${autoTeamSize} / equipo`;
+  resetTeams();
+  updatePlayers();
+});
+
+function buildTeamsSkeleton() {
+  teams = [];
+  if (currentMode === "classic") {
+    teams.push({ id: "survivors", label: "Supervivientes", emoji: "🔫", color: TEAM_COLORS[0], members: [], capacity: Infinity });
+    teams.push({ id: "infected",  label: "Infectados",     emoji: "🧟", color: TEAM_COLORS[1], members: [], capacity: Infinity });
+    return;
+  }
+  const size  = currentMode === "2v2" ? 2 : currentMode === "3v3" ? 3 : currentMode === "4v4" ? 4 : autoTeamSize;
+  const total = players.length + teams.reduce((s, t) => s + t.members.length, 0);
+  const n     = Math.max(1, Math.ceil(total / size));
+  for (let i = 0; i < n; i++)
+    teams.push({ id: `team-${i}`, label: `Equipo ${i + 1}`, emoji: "👤", color: TEAM_COLORS[i % TEAM_COLORS.length], members: [], capacity: size });
+}
+
+function buildTeamsSkeletonIfNeeded() { if (!teams.length) buildTeamsSkeleton(); }
+
+/* Reset: reconstruye todo el DOM de equipos (solo en reset/clear) */
+function renderTeams() {
+  teamsContainer.innerHTML = "";
+  teams.forEach(team => appendTeamCard(team, null));
+}
+
+function resetTeams() {
+  buildTeamsSkeleton();
+  teamsContainer.innerHTML = "";
+  // Ya no llamamos a renderTeams aquí, lo haremos en updatePlayers
+}
+
+function pickNextTeam() {
+  if (currentMode === "classic") { turn++; return turn % 2 === 1 ? teams[0] : teams[1]; }
+  for (let a = 0; a < teams.length; a++) {
+    const c = teams[turn % teams.length]; turn++;
+    if (c.members.length < c.capacity) return c;
+  }
+  return teams[teams.length - 1];
 }
 
 document.getElementById("spinBtn").onclick = spin;
 
 document.getElementById("resetBtn").onclick = () => {
-  currentAngle = 0;
-  turn = 0;
-  spinning = false;
-  winner.innerHTML = "";
-  resetTeams();
-  updatePlayers();
+  wheelAngle = 0; turn = 0; spinning = false;
+  winnerEl.innerHTML = ""; spinQueue = [];
+  resetTeams(); updatePlayers();
 };
-
 document.getElementById("clearBtn").onclick = () => {
-  currentAngle = 0;
-  turn = 0;
-  spinning = false;
-  winner.innerHTML = "";
-  input.value = "";
-  resetTeams();
-  updatePlayers();
+  wheelAngle = 0; turn = 0; spinning = false;
+  winnerEl.innerHTML = ""; spinQueue = [];
+  input.value = ""; resetTeams(); updatePlayers();
 };
-
 document.getElementById("copyBtn").onclick = () => {
-  const blocks = teams.map(team => {
-    if (team.members.length === 0) return `${team.emoji} ${team.label.toUpperCase()}: (vacío)`;
-    return `${team.emoji} ${team.label.toUpperCase()}:\n` + team.members.map((n, i) => `  ${i + 1}. ${n}`).join("\n");
-  });
-  const text = `=== LEFT 4 DEAD 2 — EQUIPOS ===\n\n${blocks.join("\n\n")}`;
-
-  navigator.clipboard.writeText(text).then(() => {
-    const msg = document.getElementById("copyMsg");
-    msg.classList.remove("hidden");
-    setTimeout(() => msg.classList.add("hidden"), 2500);
+  const txt = teams.map(t =>
+    t.members.length
+      ? `${t.emoji} ${t.label.toUpperCase()}:\n` + t.members.map((n, i) => `  ${i+1}. ${n}`).join("\n")
+      : `${t.emoji} ${t.label.toUpperCase()}: (vacío)`
+  ).join("\n\n");
+  navigator.clipboard.writeText(`=== LEFT 4 DEAD 2 — EQUIPOS ===\n\n${txt}`).then(() => {
+    const m = document.getElementById("copyMsg");
+    m.classList.remove("hidden"); setTimeout(() => m.classList.add("hidden"), 2500);
   });
 };
 
 input.addEventListener("input", updatePlayers);
 
-/* ============================================================
-   RULETA DE MAPAS
-   ============================================================ */
+/* ── Ruleta de mapas ── */
 const mapCanvas = document.getElementById("mapWheel");
-const mapCtx = mapCanvas.getContext("2d");
-const mapsList = document.getElementById("mapsList");
+const mapCtx    = mapCanvas.getContext("2d");
+const mapsList  = document.getElementById("mapsList");
 const mapWinner = document.getElementById("mapWinner");
-const mapCountLabel = document.getElementById("mapCount");
-
-let mapAngle = 0;
+const mapCountLbl = document.getElementById("mapCount");
+let mapAngle    = 0;
 let mapSpinning = false;
-let activeMaps = MAPS.map(m => ({ ...m, enabled: true }));
+let activeMaps  = MAPS.map(m => ({ ...m, enabled: true }));
 
-function getActiveMaps() {
-  return activeMaps.filter(m => m.enabled);
-}
-
+function getActiveMaps() { return activeMaps.filter(m => m.enabled); }
 function drawMapWheel() {
-  drawGenericWheel(mapCtx, mapCanvas, getActiveMaps(), m => m.name);
+  const a = getActiveMaps();
+  mapCtx.save();
+  mapCtx.translate(mapCanvas.width/2, mapCanvas.height/2);
+  mapCtx.rotate(mapAngle);
+  mapCtx.translate(-mapCanvas.width/2, -mapCanvas.height/2);
+  drawWheelData(mapCtx, mapCanvas, a, m => m.name);
+  mapCtx.restore();
 }
-
 function renderMapsList() {
   mapsList.innerHTML = "";
   activeMaps.forEach((m, idx) => {
@@ -589,63 +481,48 @@ function renderMapsList() {
     `;
     mapsList.appendChild(row);
   });
-  mapCountLabel.textContent = getActiveMaps().length;
+  mapCountLbl.textContent = getActiveMaps().length;
   drawMapWheel();
 }
-
-mapsList.addEventListener("change", (e) => {
-  const idx = e.target.dataset.idx;
-  if (idx === undefined) return;
+mapsList.addEventListener("change", e => {
+  const idx = e.target.dataset.idx; if (!idx) return;
   activeMaps[idx].enabled = e.target.checked;
-  mapCountLabel.textContent = getActiveMaps().length;
-  drawMapWheel();
+  mapCountLbl.textContent = getActiveMaps().length; drawMapWheel();
 });
-
-document.getElementById("mapsAllBtn").onclick = () => {
-  activeMaps.forEach(m => m.enabled = true);
-  renderMapsList();
-};
-document.getElementById("mapsNoneBtn").onclick = () => {
-  activeMaps.forEach(m => m.enabled = false);
-  renderMapsList();
-};
-document.getElementById("mapsOfficialBtn").onclick = () => {
-  activeMaps.forEach(m => m.enabled = !!m.official);
-  renderMapsList();
-};
+document.getElementById("mapsAllBtn").onclick      = () => { activeMaps.forEach(m => m.enabled = true);        renderMapsList(); };
+document.getElementById("mapsNoneBtn").onclick     = () => { activeMaps.forEach(m => m.enabled = false);       renderMapsList(); };
+document.getElementById("mapsOfficialBtn").onclick = () => { activeMaps.forEach(m => m.enabled = !!m.official); renderMapsList(); };
 
 function spinMap() {
   const active = getActiveMaps();
-  if (mapSpinning || active.length === 0) {
-    if (active.length === 0) alert("No hay mapas seleccionados.");
-    return;
+  if (mapSpinning || !active.length) { if (!active.length) alert("No hay mapas."); return; }
+  mapSpinning = true; mapWinner.innerHTML = "";
+  const si    = Math.floor(Math.random() * active.length);
+  const slice = (Math.PI * 2) / active.length;
+  const tgt   = -Math.PI / 2 - (si * slice + slice / 2);
+  const jit   = (Math.random() - 0.5) * slice * 0.55;
+  const extra = Math.PI * 2 * (8 + Math.floor(Math.random() * 4));
+  let delta   = ((tgt + jit - mapAngle) % (Math.PI * 2));
+  if (delta < 0) delta += Math.PI * 2; delta += extra;
+  const sa = mapAngle, t0 = performance.now();
+  function animate(now) {
+    const t = Math.min((now - t0) / 5000, 1), a = sa + delta * easeOut(t);
+    mapAngle = a;
+    mapCtx.save(); mapCtx.translate(mapCanvas.width/2, mapCanvas.height/2);
+    mapCtx.rotate(a); mapCtx.translate(-mapCanvas.width/2, -mapCanvas.height/2);
+    drawWheelData(mapCtx, mapCanvas, active, m => m.name); mapCtx.restore();
+    if (t < 1) { requestAnimationFrame(animate); return; }
+    mapAngle = sa + delta; mapSpinning = false;
+    mapWinner.innerHTML = `🗺️ <span class="text-purple-400">${active[si].name}</span>`;
   }
-  mapSpinning = true;
-  mapWinner.innerHTML = "";
-
-  genericSpin({
-    items: active,
-    ctxRef: mapCtx,
-    canvasRef: mapCanvas,
-    getAngleState: () => mapAngle,
-    setAngleState: (a) => { mapAngle = a; },
-    onDone: (selectedIndex) => {
-      mapSpinning = false;
-      const map = active[selectedIndex];
-      mapWinner.innerHTML = `🗺️ <span class="text-purple-400">${map.name}</span>`;
-    },
-  });
+  requestAnimationFrame(animate);
 }
-
 document.getElementById("spinMapBtn").onclick = spinMap;
 
-/* ============================================================
-   INIT
-   ============================================================ */
+/* ── Init ── */
 setMode("classic");
 renderMapsList();
 updatePlayers();
-
 </script>
 </body>
 </html>
