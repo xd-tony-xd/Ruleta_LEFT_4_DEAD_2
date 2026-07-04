@@ -130,6 +130,56 @@ xd-tony-xd</textarea>
     </div>
   </div>
 </div>
+<div class="max-w-md mx-auto bg-slate-900 rounded-xl p-3 space-y-2 mt-4">
+
+    <h3 class="text-sm font-bold text-white mb-2">⚡ Lerp</h3>
+
+    <div class="flex items-center justify-between bg-slate-800 rounded-lg px-3 py-2 text-xs">
+        <code>cl_interp 0</code>
+        <button onclick="copyCmd('cl_interp 0')" class="text-green-400 hover:text-green-300">📋</button>
+    </div>
+
+    <div class="flex items-center justify-between bg-slate-800 rounded-lg px-3 py-2 text-xs">
+        <code>cl_interp_ratio 0</code>
+        <button onclick="copyCmd('cl_interp_ratio 0')" class="text-green-400 hover:text-green-300">📋</button>
+    </div>
+
+</div>
+<div class="max-w-md mx-auto bg-slate-900 rounded-xl p-3 space-y-2">
+
+    <h3 class="text-sm font-bold text-white mb-2">🎯 Crosshair</h3>
+
+    <div class="flex items-center justify-between bg-slate-800 rounded-lg px-3 py-2 text-xs">
+        <code>cl_crosshair_thickness 3</code>
+        <button onclick="copyCmd('cl_crosshair_thickness 3')" class="text-green-400 hover:text-green-300">📋</button>
+    </div>
+
+    <div class="flex items-center justify-between bg-slate-800 rounded-lg px-3 py-2 text-xs">
+        <code>cl_crosshair_alpha 255</code>
+        <button onclick="copyCmd('cl_crosshair_alpha 255')" class="text-green-400 hover:text-green-300">📋</button>
+    </div>
+
+    <div class="flex items-center justify-between bg-slate-800 rounded-lg px-3 py-2 text-xs">
+        <code>cl_crosshair_dynamic 0</code>
+        <button onclick="copyCmd('cl_crosshair_dynamic 0')" class="text-green-400 hover:text-green-300">📋</button>
+    </div>
+
+    <div class="flex items-center justify-between bg-slate-800 rounded-lg px-3 py-2 text-xs">
+        <code>cl_crosshair_red 0</code>
+        <button onclick="copyCmd('cl_crosshair_red 0')" class="text-green-400 hover:text-green-300">📋</button>
+    </div>
+
+    <div class="flex items-center justify-between bg-slate-800 rounded-lg px-3 py-2 text-xs">
+        <code>cl_crosshair_green 0</code>
+        <button onclick="copyCmd('cl_crosshair_green 0')" class="text-green-400 hover:text-green-300">📋</button>
+    </div>
+
+    <div class="flex items-center justify-between bg-slate-800 rounded-lg px-3 py-2 text-xs">
+        <code>cl_crosshair_blue 255</code>
+        <button onclick="copyCmd('cl_crosshair_blue 255')" class="text-green-400 hover:text-green-300">📋</button>
+    </div>
+
+</div>
 
 <script>
 const MAPS = [
@@ -446,7 +496,9 @@ document.getElementById("copyBtn").onclick = () => {
     m.classList.remove("hidden"); setTimeout(() => m.classList.add("hidden"), 2500);
   });
 };
-
+function copyCmd(cmd) {
+    navigator.clipboard.writeText(cmd);
+}
 input.addEventListener("input", updatePlayers);
 
 /* ── Ruleta de mapas ── */
@@ -523,6 +575,7 @@ document.getElementById("spinMapBtn").onclick = spinMap;
 setMode("classic");
 renderMapsList();
 updatePlayers();
+
 </script>
 </body>
 </html>
